@@ -36,7 +36,7 @@ The package manager also has some downsides and weaknesses though. They include:
 - Limited update capabilites (you have to manually uninstall and reinstall a package)
 - No support for source-packages that can be compiled using the package-manager
 - No support for more than one repository at once
-- I might have forgotten something...
+- There might be more...
 
 Besides that, it's a pretty solid and usable package manager
 
