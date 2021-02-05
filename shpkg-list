@@ -1,0 +1,24 @@
+#!/bin/sh
+
+MYPWD=$PWD
+
+# 1. Query repo database folder
+cd $REPODIR/info
+PACKAGE_COUNT=$(ls *.info | wc -l)
+PACKAGE_FILES=$(ls *.info)
+
+# 2. Output results of the query
+if [ PACKAGE_COUNT = 0 ]
+then
+	echo "There are no pacakges in the repository"
+else
+	echo ""
+	PACKAGE_FILES=$(ls *.info)
+	for file_i in $PACKAGE_FILES
+	do
+		FILE_TMP=$(echo $file_i | cut -f 1 -d '.')
+		echo "${FILE_TMP}:"
+		cat $file_i
+		echo "\n"
+	done
+fi

@@ -1,0 +1,38 @@
+#!/bin/sh
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME show [package name]"
+	exit
+fi
+
+MYPWD=$PWD
+
+cd $REPODIR/info
+
+# 1. Check whether the package exists
+if [ -f "$1.info" ] && [ -f "$1.deps" ]
+then
+	# 2. If yes, print it's information
+	echo ""
+    echo "Package name:"
+    echo "$1"
+    echo ""
+    echo "Package description:"
+    cat $1.info
+    echo "\n"
+    echo "Package dependencies:"
+    
+    # 3. Check whether the dependency file has any contents
+    if [ -s "$1.deps" ]
+    then
+    	# 4. If yes, print dependencies
+		cat $1.deps
+		echo "\n"
+	else
+		# 5. If not, print "(no dependencies)" as dependencies
+		echo "(no dependencies)\n"
+	fi
+else
+	# 6. If the package doesn't exist, print that
+	echo "Package file not found"
+fi

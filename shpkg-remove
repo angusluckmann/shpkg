@@ -1,0 +1,92 @@
+#!/bin/sh
+
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME remove [package name]"
+	exit
+fi
+
+MYPWD=$PWD
+MYDIR=$TOOL_DIR
+FALSE=0
+TRUE=1
+
+package_manually_installed()
+{
+	PACKAGE_FIXED=$(ls $INSTALLROOT/packagedb/ | grep "\.minstall")
+	for i_fixed in $PACKAGE_FIXED
+	do
+		# 1. Check whether the current package is manually installed
+		TMP_CURRENT_PACKAGE=$(basename $i_fixed .minstall)
+		if [ "$1" = "$TMP_CURRENT_PACKAGE" ]
+		then
+			return $TRUE
+		fi
+	done
+	return $FALSE
+}
+
+package_still_needed() # $1 = par_package_to_consider_uninstall
+{
+	# 1. Check whether the package was manually installed
+	package_manually_installed $1
+	TMP_MANUAL_INSTALL=$?
+	if [ "$TMP_MANUAL_INSTALL" = "$TRUE" ]
+	then
+		return $TRUE
+	else
+		# 2. Get all the reverse dependencies of the current package
+		PACKAGE_LIST=$(ls $INSTALLROOT/packagedb/ | grep "\.info")
+		for i_pkg in $PACKAGE_LIST
+		do
+			if [ -f $REPODIR/info/$i_pkg.deps ]
+			then
+				TMP_DEPS=$(cat $REPODIR/info/$i_pkg.deps)
+				for i_dep in $TMP_DEPS
+				do
+					if [ "$i_dep" = "$1" ]
+					then
+						# 3. Check whether the current reverse dependency is still needed (by being manually installed or having a needed reverse dependency)
+						TMP_STILL_NEEDED=$(package_still_needed $i_dep)
+						if [ "$TMP_STILL_NEEDED" = "$TRUE" ]
+						then
+							return $TRUE
+						fi
+					fi
+				done
+			fi
+		done
+	fi
+
+	# 4. If the package is not manually installed and has no manually installed reverse dependencies, then return that it's not needed anymore
+	return $FALSE
+}
+
+autoremove_unneeded_packages()
+{
+	# 1. Go through all available packages
+	PACKAGE_LIST=$(ls $INSTALLROOT/packagedb/ | grep "\.info")
+	for i_pkg in $PACKAGE_LIST
+	do
+		# 2. Check whether the current package is still needed
+		TMP_PKG=$(basename $i_pkg .info)
+		package_still_needed $TMP_PKG
+		PKG_STILL_NEEDED=$?
+		if [ "$PKG_STILL_NEEDED" = "$FALSE" ]
+		then
+			# 3. Remove the package with shpkg-del (or similar) if it is not
+			$MYDIR/$TOOL_NAME-del $TMP_PKG
+		fi
+	done
+}
+
+mark_auto_installed()
+{
+	rm -f $PACKAGEDB/$1.minstall
+}
+
+# 1. Mark main package as auto-installed
+mark_auto_installed $1
+
+# 2. Perm the equivalent of "apt-get autoremove"
+autoremove_unneeded_packages

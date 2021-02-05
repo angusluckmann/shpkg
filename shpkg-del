@@ -1,0 +1,28 @@
+#!/bin/sh
+#INSTALLROOT=$PWD/sysroot/
+#PACKAGEDB_SUBFOLDER=packagedb/
+#PACKAGEDB=$INSTALLROOT/$PACKAGEDB_SUBFOLDER/
+
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME del [package name]"
+	exit
+fi
+
+# 1. Figure out general data
+PACKAGEDB_FILE=$PACKAGEDB_SUBFOLDER/$1.info
+PACKAGEDB_FILE2=$PACKAGEDB_SUBFOLDER/$1.minstall
+MYPWD=$PWD
+
+# 2. Remove installed files
+cd $INSTALLROOT
+rm -f $(tac $PACKAGEDB_FILE) 2> /dev/null
+rmdir --ignore-fail-on-non-empty $(tac $PACKAGEDB_FILE) 2> /dev/null
+
+# 3. Remove package from package database
+rm -f $PACKAGEDB_FILE 2> /dev/null
+rm -f $PACKAGEDB_FILE2 2> /dev/null
+rmdir --ignore-fail-on-non-empty $PACKAGEDB_SUBFOLDER 2> /dev/null
+
+# 4. Restore temporary state to old state
+cd $MYPWD

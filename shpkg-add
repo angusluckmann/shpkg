@@ -1,0 +1,63 @@
+#!/bin/sh
+
+tar_extract_specify_folder()
+{
+	mkdir $2
+	tar xf $1 -C $2 --strip-components 1
+}
+
+move_files_to_new_folder() # $1 = old_folder, $2 = new_folder
+{
+	DIR_FILES=$(ls -a $1/)
+	for i_file in $DIR_FILES
+	do
+		TMP_FILE_DIR=$(file $1/$i_file | grep "directory" | wc -l)
+		if [ "$i_file" = "." ]
+		then
+			echo "do nothing" > /dev/null
+		elif [ "$i_file" = ".." ]
+		then
+			echo "do nothing" > /dev/null
+		elif [ $TMP_FILE_DIR = 1 ]
+		then
+			mkdir -p $2/$i_file
+			move_files_to_new_folder $1/$i_file $2/$i_file
+		else
+			mv $1/$i_file $2/$i_file
+		fi
+	done
+}
+
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME add [package file]"
+	exit
+fi
+
+# 1. Extract specified package
+tar_extract_specify_folder $1 $1_folder/
+
+# 2. Get package name
+PKGNAME=$(cat $1_folder/pkgname)
+rm $1_folder/pkgname
+
+# 3. Prepare package database (in installation location)
+mkdir -p $PACKAGEDB/
+cd $1_folder/
+find  > $PACKAGEDB/$PKGNAME.info
+if [ $INSTALLMODE = "manual" ]
+then
+	echo "OK" > $PACKAGEDB/$PKGNAME.minstall # minstall = manual install, not installed as dependency
+fi
+cd ..
+
+# 4. Install files to installation location
+move_files_to_new_folder $1_folder $INSTALLROOT
+
+# 5. Remove temporary files???
+MYPWD=$PWD
+cd $1_folder
+rmdir --ignore-fail-on-non-empty $(find | tac) 2> /dev/null
+cd $MYPWD
+
+rmdir --ignore-fail-on-non-empty $1_folder/

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Print help text
+echo "add - Installs a single package (from file)"
+echo "del - Removes a single package (using package name)"
+echo "install - Installs a package with dependencies (from repo)"
+echo "remove - Removes a package (working with repo-data)"
+echo "build - Builds a package from a folder"
+echo "list - lists available packages in the repository"
+echo "list-installed - lists installed packages"
+echo "show - Gives information about a specified package (dependencies, etc.)"
+echo "build-repopack - Build a repopack from a repo-folder"
+echo "install-repopack - Installs a repopack-file"
+echo "webinstall-repopack - Downloads and installs a repopack-file"
+echo "--help - Show this help"
+echo "--version - Shows $TOOL_NAME version"

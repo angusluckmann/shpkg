@@ -1,0 +1,43 @@
+#!/bin/sh
+
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME install [package name]"
+	exit
+fi
+
+MYPWD=$PWD
+MYDIR=$TOOL_DIR
+
+tar_extract_specify_folder()
+{
+	mkdir $2
+	tar xf $1 -C $2 --strip-components 1
+}
+
+install_package_with_dependencies()
+{
+	#install_package $REPODIR/$1.$FILE_EXTENSIONS_PKG
+	$MYDIR/$TOOL_BINARY-add $REPODIR/$1.${FILE_EXTENSIONS_PKG}
+	PACKAGE_DEPS=$(cat $REPODIR/info/$1.deps)
+	for i_dep in $PACKAGE_DEPS
+	do
+		#echo "Dependency: $i_dep"
+		install_package_with_dependencies $i_dep
+	done
+}
+
+# 1. Prepare installation
+mkdir -p $INSTALLROOT
+mkdir -p $PACKAGEDB
+
+# 2. Mark main package as manually installed
+tar_extract_specify_folder $REPODIR/$1.${FILE_EXTENSIONS_PKG} /tmp/$1.${FILE_EXTENSIONS_PKG}_folder/
+PKGNAME=$(cat /tmp/$1.${FILE_EXTENSIONS_PKG}_folder/pkgname)
+mkdir -p $PACKAGEDB/
+echo "OK" > $PACKAGEDB/$PKGNAME.minstall # minstall = manual install, not installed as dependency
+rm -rf /tmp/$1.${FILE_EXTENSIONS_PKG}_folder/
+
+# 3. Install the remaining packages as auto-installed
+export INSTALLMODE="auto"
+install_package_with_dependencies $1

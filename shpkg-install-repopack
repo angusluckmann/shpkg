@@ -1,0 +1,58 @@
+#!/bin/sh
+
+FALSE=0
+TRUE=1
+
+tar_extract_specify_folder()
+{
+	mkdir $2
+	tar xf $1 -C $2 --strip-components 1
+}
+
+get_confirmation()
+{
+	echo "Warning! This will delete the full contents of the folder $REPODIR"
+	echo "Type \"yes\" to contine or cancel with Ctrl+C:"
+	read var1
+	if [ "$var1" = "yes" ]
+	then
+		return $TRUE
+	fi
+	return $FALSE
+}
+
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME install-repopack [repopack file]"
+	exit
+fi
+
+# 1. Check whether the repopack-file exists
+if [ -f $1 ]
+then
+	# 2. Ask the user to confirm the deletion of old repo files
+	get_confirmation
+	TMP_RESULT=$?
+
+	# 3. If he says yes ...
+	if [ "$TMP_RESULT" = "$TRUE" ]
+	then
+		# 4. Extract repopack file
+		tar_extract_specify_folder $1 $1_folder/
+
+		# 5. Remove old repo dir contents
+		rm -rf $REPODIR/
+
+		# 6. Make extracted repopack file new repo folder
+		mv $1_folder/ $REPODIR/
+
+		# 7. Give user confirmation
+		echo "Repopack successfully installed!"
+	else
+		# 7. If he says no, abort
+		echo "Not deleting old repo files. Aborting!"
+	fi
+else
+	# 8. If the repopack file could not be found, say so
+	echo "The file $1 does not exist."
+fi

@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# Basic tool configurations
+export TOOL_NAME="shpkg"
+export TOOL_BINARY="shpkg"
+export TOOL_VERSION="0.1"export
+export TOOL_DIR=$(dirname $0)
+
+# File extensions
+export FILE_EXTENSIONS_PKG="pkf"
+export FILE_EXTENSIONS_REPO_PKG="rpk"
+
+# Basic tool paths
+export INSTALLROOT=$TOOL_DIR/sysroot/
+export PACKAGEDB_SUBFOLDER=packagedb/
+export PACKAGEDB=$INSTALLROOT/$PACKAGEDB_SUBFOLDER/
+export REPODIR=$TOOL_DIR/repo
+
+# Temporary variables
+export INSTALLMODE="manual"
+MYDIR=$TOOL_DIR
+
+run_subtool()
+{
+	$MYDIR/$TOOL_BINARY-$1
+}
+
+run_subtool_with_parameters()
+{
+	$MYDIR/$TOOL_BINARY-$1 $2
+}
+
+show_version()
+{
+	echo "$TOOL_NAME $TOOL_VERSION"
+}
+
+if [ "$1" = "list-installed" ] || [ "$1" = "list" ]
+then
+	run_subtool $1
+elif [ "$1" = "add" ] || [ "$1" = "del" ] || [ "$1" = "install" ] || [ "$1" = "remove" ] || [ "$1" = "build" ] || [ "$1" = "show" ] || [ "$1" = "build-repopack" ] || [ "$1" = "install-repopack" ] || [ "$1" = "webinstall-repopack" ]
+then
+	run_subtool_with_parameters $1 $2
+elif [ "$1" = "--help" ]
+then
+	run_subtool help
+elif [ "$1" = "--version" ]
+then
+	show_version
+else
+	echo "Error! Invalid parameters! Type \"$TOOL_NAME --help\" for more information"
+fi

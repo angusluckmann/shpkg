@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = "--help" ]
+then
+	echo "$TOOL_NAME build-repopack [folder with repo contents]"
+	exit
+fi
+
+# Build package file from folder
+tar --gzip -cf $1.$FILE_EXTENSIONS_REPO_PKG $1/
