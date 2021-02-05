@@ -24,7 +24,7 @@ You can (with some restrictions) use it to:
 - Maybe manage updates and software-installations on gentoo-installs
 - Prototype potential next-level package-management concepts for linux
 - Understand package-managers in popular linux distributions at a basic level
-- Manage or any other kind of files on your hard-drive
+- Manage any other kind of files on your hard-drive
 - etc.
 
 ## Downsides
@@ -49,7 +49,7 @@ The package manager generally works with 4 kinds of data:
 - **Repopacks:** A repopack is a repository compressed into a single archive
 - **Package database:** A simple folder containing information about the installed packages within a certain system or folder
 
-**Note:** In common linux distributions, the dependencies of a package are saved in the package file. This package manager manages dependencies at the repo-level.
+**Note:** In common linux package managers, the dependencies of a package are saved in the package file. This package manager manages dependencies at the repo-level.
 
 ## Configuration
 
